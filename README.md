@@ -1,29 +1,77 @@
-Working in a command line environment is recommended for ease of use with git and dvc. If on Windows, WSL1 or 2 is recommended.
+# Deploying a Scalable ML Pipeline with FastAPI
 
-# Environment Set up (pip or conda)
-* Option 1: use the supplied file `environment.yml` to create a new environment with conda
-* Option 2: use the supplied file `requirements.txt` to create a new environment with pip
-    
-## Repositories
-* Create a directory for the project and initialize git.
-    * As you work on the code, continually commit changes. Trained models you want to use in production must be committed to GitHub.
-* Connect your local git repo to GitHub.
-* Setup GitHub Actions on your repo. You can use one of the pre-made GitHub Actions if at a minimum it runs pytest and flake8 on push and requires both to pass without error.
-    * Make sure you set up the GitHub Action to have the same version of Python as you used in development.
+**GitHub Repository:** https://github.com/Sonmcc/Deploying-a-Scalable-ML-Pipeline-with-FastAPI
 
-# Data
-* Download census.csv and commit it to dvc.
-* This data is messy, try to open it in pandas and see what you get.
-* To clean it, use your favorite text editor to remove all spaces.
+## What is this project?
 
-# Model
-* Using the starter code, write a machine learning model that trains on the clean data and saves the model. Complete any function that has been started.
-* Write unit tests for at least 3 functions in the model code.
-* Write a function that outputs the performance of the model on slices of the data.
-    * Suggestion: for simplicity, the function can just output the performance on slices of just the categorical features.
-* Write a model card using the provided template.
+This project takes U.S. Census data and uses it to predict whether someone earns more or less than $50,000 a year. It walks through the full process of building a machine learning project the way it's often done in the real world:
 
-# API Creation
-*  Create a RESTful API using FastAPI this must implement:
-    * GET on the root giving a welcome message.
-    * POST that does model inference.
+1. Explore and understand the data
+2. Build and train a machine learning model
+3. Test that the code actually works (unit tests)
+4. Check how the model performs across different groups of people (not just overall)
+5. Wrap the model in a web API so other programs can send it data and get predictions back
+6. Set up automatic checks (CI) so that every time code is pushed to GitHub, it's tested automatically
+
+This was built as a course project for Udacity's "Deploying a Scalable ML Pipeline with FastAPI" course.
+
+## What's in this repo?
+
+- `data/census.csv` — the dataset used to train the model
+- `ml/data.py` — code that cleans and prepares the data
+- `ml/model.py` — code that trains the model, makes predictions, and checks its accuracy
+- `train_model.py` — the script that actually runs the training process
+- `slice_output.txt` — a report showing how well the model performs for different subgroups (like different education levels or countries)
+- `model_card.md` — a plain-language summary of the model: what it does, how it was trained, how well it works, and its limitations
+- `main.py` — the web API (built with FastAPI) that lets you send it data and get a prediction back
+- `local_api.py` — a small script to test that the API is working correctly
+- `test_ml.py` — automated tests that check the model code works as expected
+- `screenshots/` — screenshots showing the tests and API working successfully
+
+## How to run this project yourself
+
+### 1. Set up your environment
+
+You'll need Python 3.11. Create a virtual environment and install the requirements:
+
+```bash
+python3.11 -m venv fastapi
+source fastapi/bin/activate
+pip install -r requirements.txt
+```
+
+### 2. Train the model
+
+```bash
+python train_model.py
+```
+
+This trains the model on the census data and saves it to the `model/` folder. It also creates `slice_output.txt`, showing performance broken down by group.
+
+### 3. Run the tests
+
+```bash
+pytest -v
+```
+
+### 4. Check code style
+
+```bash
+flake8 .
+```
+
+### 5. Run the API
+
+```bash
+uvicorn main:app --reload
+```
+
+In a separate terminal, you can then test it with:
+
+```bash
+python local_api.py
+```
+
+## Continuous Integration
+
+Every time code is pushed to this repo, GitHub Actions automatically runs the tests and style checks above, so problems get caught early. You can see the results under the "Actions" tab of this repository.
